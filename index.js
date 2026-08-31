@@ -5,6 +5,7 @@ const path = require('path');
 const hbs = require('hbs');
 const loggerMiddleware = require('./middleware/logger');
 const mainRouter = require('./routes/router');
+const db = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 
@@ -19,12 +20,27 @@ hbs.registerHelper('capitalize', function(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
 });
 
+//para que capture error previo al arranque
+process.on('uncaughtException', (err) => {
+    console.error('Error NO manejado detectado:', err.message);
+    process.exit(1);
+});
+
 // Registrar el logger middleware
 app.use(loggerMiddleware);
 
 // Rutas
 app.use('/', mainRouter);
 
-app.listen(PORT, () => {
-  console.log(`Servidor iniciado en puerto ${PORT}`);
-});
+async function iniciarServidor() {
+  try {
+    await db.connect();
+    app.listen(PORT, () => {
+      console.log(`Servidor iniciado en puerto ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error al iniciar el servidor:', error.message);
+  }
+};
+
+iniciarServidor();
