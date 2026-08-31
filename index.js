@@ -5,7 +5,6 @@ const path = require('path');
 const hbs = require('hbs');
 const loggerMiddleware = require('./middleware/logger');
 const mainRouter = require('./routes/router');
-const db = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 
@@ -34,7 +33,6 @@ app.use('/', mainRouter);
 
 async function iniciarServidor() {
   try {
-    await db.connect();
     app.listen(PORT, () => {
       console.log(`Servidor iniciado en puerto ${PORT}`);
     });

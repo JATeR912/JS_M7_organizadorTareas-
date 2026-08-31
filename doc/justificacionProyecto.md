@@ -45,9 +45,55 @@ Se implementó el patrón de separación de rutas y controladores para desacopla
 En esta primera etapa, la información se maneja mediante arreglos de datos en memoria (hardcoded) dentro de las funciones correspondientes. Aunque esto genera cierta repetición de constantes locales entre funciones, se optó por esta estrategia para garantizar el aislamiento de alcance (scope local), prevenir mutaciones no deseadas en el estado global y mantener la modularidad a la espera de la integración formal con bases de datos.
 
 
-## Justificacion referente a la base de datos
+## Justificación referente a la base de datos
 
-Se priorizan las conexiones mediante Client a la base de datos, ya que la cantidad de recursos consumidos de manera paralela para el proyecto no justifica el uso de Pool para la conexión.
+Se priorizan las conexiones mediante `Client` a la base de datos, ya que la cantidad de recursos consumidos de manera paralela para el proyecto no justifica el uso de `Pool` para la conexión.
 
 Datos sensibles como usuario, contraseña y nombre de la base de datos se encuentran protegidos mediante el uso de un archivo `.env` y el módulo `dotenv`.
 
+### Reutilización de código para la conexión con Client
+
+Se añade una función auxiliar al archivo `config/db.js` que abstrae el flujo de conexión, consulta y cierre de `Client`. Esta función recibe la sentencia `sql` (o `query`, como se le denomina en la documentación oficial de `node-postgres` y en los ejemplos de clase) y el arreglo de parámetros `params` (o `values`).
+
+Se define `params = []` como un arreglo vacío por defecto. Esto permite que la función sea universal: funciona tanto para consultas simples sin filtros (ej. `SELECT nombre FROM usuarios`) como para consultas parametrizadas con marcadores de posición (ej. `WHERE id = $1`), previniendo errores de `undefined` cuando no se envían valores.
+
+```javascript
+// Función reutilizable para realizar consultas a la base de datos mediante Client
+async function ejecutarConsulta(sql, params = []) {
+    if (!sql) {
+        throw new Error('No se proporcionó una consulta SQL válida');
+    }
+
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+    });
+
+    try {
+        await client.connect();
+        console.log('Conexión a PostgreSQL con client correcta');
+        const resultado = await client.query(sql, params);
+        return resultado.rows;
+    } catch (err) {
+        console.error('Error al ejecutar consulta:', err.message);
+        throw err;
+    } finally {
+        await client.end();
+        console.log('Conexión client cerrada');
+    }
+}
+```
+
+#### Referencias técnicas y alineación con código de clase
+
+1. **Documentación de `node-postgres`:** La librería expone la firma `client.query(text, values)` para ejecutar peticiones. El helper mapea directamente el argumento `sql` a `text` y `params` a `values`.
+2. **Coherencia con controladores:** En los ejemplos vistos en clase se acostumbra a separar la sentencia y los datos ingresados por el cliente antes de la ejecución:
+
+```javascript
+const query = 'DELETE FROM usuarios WHERE id = $1 RETURNING id';
+const values = [id];
+// El helper permite llamar esto de forma limpia:
+// await ejecutarConsulta(query, values);
+```
+
+### Referencias y Documentación
+* **Documentación Oficial Node Postgres (`pg.Client`):** https://node-postgres.com/apis/client

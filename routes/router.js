@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getHome, getTareas, getStatus, getNotFound } = require('../controllers/indexController');
+const { getHome, getTareas, getStatus, getUsuarios, getUsuarioById, getNotFound } = require('../controllers/indexController');
 
 router.get('/', getHome);
+router.get('/usuarios', getUsuarios);
+router.get('/usuarios/:id', getUsuarioById);
 router.get('/Tareas', getTareas); 
 router.get('/status', getStatus);
 
