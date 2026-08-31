@@ -43,3 +43,11 @@ Se implementó el patrón de separación de rutas y controladores para desacopla
 
 ### Decisiones de Manejo de Datos (Alcance Entrega 1)
 En esta primera etapa, la información se maneja mediante arreglos de datos en memoria (hardcoded) dentro de las funciones correspondientes. Aunque esto genera cierta repetición de constantes locales entre funciones, se optó por esta estrategia para garantizar el aislamiento de alcance (scope local), prevenir mutaciones no deseadas en el estado global y mantener la modularidad a la espera de la integración formal con bases de datos.
+
+
+## Justificacion referente a la base de datos
+
+Se priorizan las conexiones mediante Client a la base de datos, ya que la cantidad de recursos consumidos de manera paralela para el proyecto no justifica el uso de Pool para la conexión.
+
+Datos sensibles como usuario, contraseña y nombre de la base de datos se encuentran protegidos mediante el uso de un archivo `.env` y el módulo `dotenv`.
+
