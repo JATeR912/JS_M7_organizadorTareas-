@@ -1,3 +1,5 @@
+const { ejecutarConsulta } = require('../config/db');
+
 function getHome(req, res) {
     const datos = {
         tituloPrincipal: 'Tu espacio de tareas',
@@ -29,11 +31,43 @@ function getStatus(req, res) {
   });
 };
 
-const { ejecutarConsulta } = require('../config/db');
 
-const getUsuarios = async (req, res) => {
+async function postUsuario(req,res) {
+    const { nombre, email, password } = req.body;
+    if (!validarEmail(email)) {
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'El email no es valido'
+        });
+    }
     try {
-        const usuarios = await ejecutarConsulta('SELECT id, nombre, email, fecha_registro, activo FROM usuarios');
+        const sql = 'INSERT INTO usuarios (nombre, email, password) VALUES ($1, $2, $3) RETURNING id, nombre, email, activo, fecha_registro';
+        const usuario = await ejecutarConsulta(sql, [nombre.trim(), email.trim(), password]);
+
+        return res.status(201).json({
+            ok: true,
+            mensaje: 'Usuario creado exitosamente',
+            usuario: usuario[0]
+        });
+    } catch (error) {
+        if (error.code === '23505') {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'El correo electrónico ya está registrado'
+            });
+        }
+
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'Error al crear el usuario en la base de datos'
+        });
+    }
+}
+
+async function getUsuarios(req, res) {
+    try {
+        const sql = 'SELECT id, nombre, email, fecha_registro, activo FROM usuarios';
+        const usuarios = await ejecutarConsulta(sql);
 
         res.status(200).json({
             ok: true,
@@ -48,16 +82,12 @@ const getUsuarios = async (req, res) => {
     }
 };
 
-const getUsuarioById = async (req, res) => {
+async function getUsuarioById(req, res) {
     const { id } = req.params;
-	if (!id || isNaN(id) || parseInt(id) <= 0) {
-        return res.status(400).json({
-            ok: false,
-            mensaje: 'Id de usuario inválido'
-        });
-    }
+
     try {
-        const usuario = await ejecutarConsulta('SELECT id, nombre, email, fecha_registro, activo FROM usuarios WHERE id = $1', [id]);
+        const sql = 'SELECT id, nombre, email, fecha_registro, activo FROM usuarios WHERE id = $1';
+        const usuario = await ejecutarConsulta(sql, [id]);
         if (usuario.length === 0) {
             return res.status(404).json({
                 ok: false,
@@ -76,6 +106,79 @@ const getUsuarioById = async (req, res) => {
     }
 };
 
+
+async function updateUsuarioById(req, res){
+    const { id } = req.params;
+    
+    const { nombre, email } = req.body; //Usuarios tienen nombre, email, password, fecha_registro, activo. Por lo tanto fecha registo y activo no tienen que ser actualizados por el usuario y Password tampoco se actualiza desde esta ruta
+    const campos = [];
+    const params = [];
+    let contadorParametros = 1; // Para ir generando los parámetros $1, $2 y $3 (maximo en esta caso)
+
+    if (nombre !== undefined) {
+        campos.push(`nombre = $${contadorParametros}`);
+        params.push(nombre);
+        contadorParametros++;
+    }
+
+    if (email !== undefined) {
+        campos.push(`email = $${contadorParametros}`);
+        params.push(email);
+        contadorParametros++;
+    }
+
+    if (params.length === 0) {
+        return res.status(400).json({ 
+            mensaje: 'No se enviaron datos para actualizar' 
+        });
+    }
+
+    params.push(id);
+
+    const sql = `UPDATE usuarios SET ${campos.join(', ')} WHERE id = $${contadorParametros} RETURNING nombre, email`;
+    try {
+        const usuario = await ejecutarConsulta(sql, params);
+        if (usuario.length === 0) {
+            return res.status(404).json({ 
+                mensaje: 'Usuario no encontrado' 
+            });
+        }
+        res.status(200).json({ 
+            mensaje: 'Usuario actualizado correctamente', 
+            Usuario: usuario[0] });
+    } catch (error) {
+        res.status(500).json({ 
+            mensaje: 'Error al actualizar el usuario en la base de datos' 
+        });
+    }
+};
+
+
+//Se elimina el usuario, solo por ejemplo de borrado por datos solo se mantendria con activo = false sin borrado fisico
+async function deleteUsuarioById(req, res) {
+    const { id } = req.params;
+
+    try {
+        const usuario = await ejecutarConsulta('DELETE FROM usuarios WHERE id=$1 RETURNING  id', [id]);
+        if (usuario.length > 0) {
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Usuario eliminado',
+                usuario: usuario[0]
+            });
+        }else{
+            res.status(404).json({
+                error: 'Usuario no encontrado'
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            mensaje: 'Error al obtener usuario de la base de datos'
+        });
+    }
+};
+
 function getNotFound(req, res) {
   res.status(404).render('404', { nombreProyecto: 'disper', autor: 'JATeR' });
 }
@@ -83,9 +186,11 @@ function getNotFound(req, res) {
 module.exports = {
     getHome, 
     getTareas, 
-    getStatus,    
+    getStatus,
+    postUsuario,    
     getUsuarios,
     getUsuarioById,
+    updateUsuarioById,
+    deleteUsuarioById,
     getNotFound
 };
-

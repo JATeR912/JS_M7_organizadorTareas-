@@ -28,6 +28,9 @@ process.on('uncaughtException', (err) => {
 // Registrar el logger middleware
 app.use(loggerMiddleware);
 
+//Para manejar las solicitudes en formato JSON
+app.use(express.json());
+
 // Rutas
 app.use('/', mainRouter);
 
