@@ -97,8 +97,6 @@ const values = [id];
 
 ### Validacion de datos previo a modificacion en DB
 
-### Validación de datos previo a modificación en DB
-
 Para actualizar datos del usuario que contienen `id`, `nombre`, `email`, `password`, `fecha_registro` y `activo`, se limitan las modificaciones únicamente a `nombre` y/o `email`. La `fecha_registro` y `activo` son de gestión automática del sistema o no requieren ser actualizados directamente por el usuario. Por motivos de seguridad, la `password` tampoco se actualiza desde la misma ruta de información general.
 
 Respecto a la validación de datos se aplicó lo siguiente:
