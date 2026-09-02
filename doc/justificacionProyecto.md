@@ -95,5 +95,17 @@ const values = [id];
 // await ejecutarConsulta(query, values);
 ```
 
+### Validacion de datos previo a modificacion en DB
+
+### Validación de datos previo a modificación en DB
+
+Para actualizar datos del usuario que contienen `id`, `nombre`, `email`, `password`, `fecha_registro` y `activo`, se limitan las modificaciones únicamente a `nombre` y/o `email`. La `fecha_registro` y `activo` son de gestión automática del sistema o no requieren ser actualizados directamente por el usuario. Por motivos de seguridad, la `password` tampoco se actualiza desde la misma ruta de información general.
+
+Respecto a la validación de datos se aplicó lo siguiente:
+- **id:** Se valida que sea ingresado en los parámetros de la URL, que sea un número entero y que no sea negativo.
+- **nombre:** Se valida que no esté vacío, se limpian espacios al inicio/final con `.trim()` y se exige un mínimo de 3 caracteres.
+- **email:** Se valida que no esté vacío, se limpian espacios al inicio/final y se verifica el formato estándar mediante expresiones regulares (regex).
+
+
 ### Referencias y Documentación
 * **Documentación Oficial Node Postgres (`pg.Client`):** https://node-postgres.com/apis/client

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { validarId } = require('../middleware/validarId');
 const {validarCrearUsuario, validarActualizarUsuario} = require('../middleware/validarUsuario');
+const { registroAvanceTransaccion } = require('../controllers/transaccionController');
 const { 
     getHome, 
     getTareas, 
@@ -26,6 +27,9 @@ router.get('/usuarios', getUsuarios);
 router.get('/usuarios/:id', validarId, getUsuarioById);
 router.put('/usuarios/:id', validarId, validarActualizarUsuario, updateUsuarioById);
 router.delete('/usuarios/:id', validarId, deleteUsuarioById);
+
+// Rutas para transacciones
+router.post('/usuarios/:id/avance', validarId, registroAvanceTransaccion);
 
 // Ruta no encontrada
 router.use(getNotFound);
