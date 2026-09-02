@@ -1,5 +1,6 @@
 require('dotenv').config()
 const {Client} = require('pg')
+const { registrarErrorLog } = require('../middleware/logger');
 
 async function registroAvanceTransaccion(req, res) {
     const {id} = req.params;
@@ -65,15 +66,16 @@ async function registroAvanceTransaccion(req, res) {
         // Imprimir  mensaje de éxito en la consola
         console.log(`Registro de avance exitoso. Tarea ${actualizarEstadoTarea.rows[0].id} actualizada a estado ${actualizarEstadoTarea.rows[0].estado} para la tarea ${actualizarEstadoTarea.rows[0].nombre} del usuario ${id}`);
 
-    } catch(err) {
+    } catch(error) {
         // Revertir en caso de error
         await client.query('ROLLBACK;');
+        registrarErrorLog('registroAvanceTransaccion', error.message);
         res.status(500).json({
             ok: false,
             mensaje: 'Error al registrar el avance de la tarea',
-            error: err.message
+            error: error.message
         });
-        console.error('Error al registrar el avance de la tarea:', err.message);
+        console.error('Error al registrar el avance de la tarea:', error.message);
     } finally {
         await client.end();
     }

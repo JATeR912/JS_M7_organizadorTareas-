@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const hbs = require('hbs');
-const loggerMiddleware = require('./middleware/logger');
+const {loggerMiddleware} = require('./middleware/logger');
 const mainRouter = require('./routes/router');
 
 const PORT = process.env.PORT || 3000;

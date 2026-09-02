@@ -9,7 +9,7 @@ const loggerMiddleware = (req, res, next) => {
     const metodo = req.method;
     const ruta = req.url;
 
-    const registro = `[${fecha}] ${metodo} ${ruta}\n`;
+    const registro = `[INFO] [${fecha}] ${metodo} ${ruta}\n`;
 
     fs.appendFileSync(RUTA_LOGS, registro, 'utf8');
   } catch (error) {
@@ -18,4 +18,14 @@ const loggerMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = loggerMiddleware;
+const registrarErrorLog = (origen, mensajeError) => {
+  try {
+    const fecha = new Date().toISOString();
+    const registro = `[ERROR] [${fecha}] En ${origen}: ${mensajeError}\n`;
+    fs.appendFileSync(RUTA_LOGS, registro, 'utf8');
+  } catch (error) {
+    console.error('Error al escribir en el log.txt:', error.message);
+  }
+};
+
+module.exports = { loggerMiddleware, registrarErrorLog };
