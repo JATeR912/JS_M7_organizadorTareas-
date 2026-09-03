@@ -1,4 +1,5 @@
 const { ejecutarConsulta } = require('../config/db');
+const { registrarErrorLog } = require('../middleware/logger');
 
 function getHome(req, res) {
     const datos = {
@@ -34,22 +35,18 @@ function getStatus(req, res) {
 
 async function postUsuario(req,res) {
     const { nombre, email, password } = req.body;
-    if (!validarEmail(email)) {
-        return res.status(400).json({
-            ok: false,
-            mensaje: 'El email no es valido'
-        });
-    }
+
     try {
         const sql = 'INSERT INTO usuarios (nombre, email, password) VALUES ($1, $2, $3) RETURNING id, nombre, email, activo, fecha_registro';
         const usuario = await ejecutarConsulta(sql, [nombre.trim(), email.trim(), password]);
 
-        return res.status(201).json({
+        res.status(201).json({
             ok: true,
             mensaje: 'Usuario creado exitosamente',
             usuario: usuario[0]
         });
     } catch (error) {
+        registrarErrorLog('postUsuario', error.message);
         if (error.code === '23505') {
             return res.status(400).json({
                 ok: false,
@@ -75,6 +72,7 @@ async function getUsuarios(req, res) {
             data: usuarios
         });
     } catch (error) {
+        registrarErrorLog('getUsuarios', error.message);
         res.status(500).json({
             ok: false,
             mensaje: 'Error al obtener usuarios de la base de datos'
@@ -99,6 +97,7 @@ async function getUsuarioById(req, res) {
             data: usuario[0]
         });
     } catch (error) {
+        registrarErrorLog('getUsuarioById', error.message);
         res.status(500).json({
             ok: false,
             mensaje: 'Error al obtener usuario de la base de datos'
@@ -147,6 +146,7 @@ async function updateUsuarioById(req, res){
             mensaje: 'Usuario actualizado correctamente', 
             Usuario: usuario[0] });
     } catch (error) {
+        registrarErrorLog('updateUsuarioById', error.message)
         res.status(500).json({ 
             mensaje: 'Error al actualizar el usuario en la base de datos' 
         });
@@ -160,21 +160,22 @@ async function deleteUsuarioById(req, res) {
 
     try {
         const usuario = await ejecutarConsulta('DELETE FROM usuarios WHERE id=$1 RETURNING  id', [id]);
-        if (usuario.length > 0) {
-            res.status(200).json({
-                ok: true,
-                mensaje: 'Usuario eliminado',
-                usuario: usuario[0]
-            });
-        }else{
-            res.status(404).json({
+        if (usuario.length === 0) {
+            return res.status(404).json({
                 error: 'Usuario no encontrado'
             });
         }
+        res.status(200).json({
+            ok: true,
+            mensaje: 'Usuario eliminado',
+            usuario: usuario[0]
+        });
+
     } catch (error) {
+        registrarErrorLog('deleteUsuarioById', error.message);
         res.status(500).json({
             ok: false,
-            mensaje: 'Error al obtener usuario de la base de datos'
+            mensaje: 'Error al eliminar usuario de la base de datos'
         });
     }
 };
