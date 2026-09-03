@@ -1,5 +1,6 @@
 require('dotenv').config()
 const {Client} = require('pg')
+const { Sequelize } = require('sequelize');
 
 async function probarConexionClient(consulta){
     const client = new Client({
@@ -42,4 +43,15 @@ async function ejecutarConsulta(sql, params = []) {
     }
 };
 
-module.exports = {probarConexionClient, ejecutarConsulta};
+const sequelize = new Sequelize(
+  process.env.DB_NAME, 
+  process.env.DB_USER, 
+  process.env.DB_PASSWORD,
+  {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  dialect: 'postgres',
+  logging: false
+});
+
+module.exports = {probarConexionClient, ejecutarConsulta, sequelize};
