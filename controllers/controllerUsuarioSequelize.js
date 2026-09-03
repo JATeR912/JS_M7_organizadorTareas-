@@ -55,7 +55,7 @@ async function postUsuario(req,res) {
 
 async function getUsuarios(req, res) {
     try {
-        const usuario = await Usuario.findAll();
+        const usuario = await Usuario.findAll({attributes: ['id', 'nombre', 'email', 'fecha_registro']});
 
         res.status(200).json({
             ok: true,
@@ -75,7 +75,7 @@ async function getUsuarioById(req, res) {
     const { id } = req.params;
 
     try {
-        const usuario = await Usuario.findByPk(id);
+        const usuario = await Usuario.findByPk(id, {attributes: ['id', 'nombre', 'email', 'fecha_registro']});
         if (!usuario) {
             return res.status(404).json({
                 ok: false,

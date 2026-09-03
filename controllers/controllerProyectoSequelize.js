@@ -5,7 +5,8 @@ async function getProyectosUsuarioById(req, res) {
     const { id } = req.params;
 
     try {
-        const usuario = await Usuario.findByPk(id, {include: {model: Proyecto, as: 'proyectos', attributes: ['id','titulo','descripcion', 'fecha_creacion', 'imagen_url', 'privado']}});
+        // Obtener el usuario por su ID y sus proyectos asociados pidiendo atributos específicos de cada modelo (para evitar enviar contraseñas)
+        const usuario = await Usuario.findByPk(id, {attributes: ['id', 'nombre', 'email', 'fecha_registro'], include: {model: Proyecto, as: 'proyectos', attributes: ['id','titulo','descripcion', 'fecha_creacion', 'imagen_url', 'privado']}});
 
     if (!usuario) {
         return res.status(404).json({
