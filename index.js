@@ -5,6 +5,7 @@ const path = require('path');
 const hbs = require('hbs');
 const {loggerMiddleware} = require('./middleware/logger');
 const mainRouter = require('./routes/router');
+const { sequelize } = require('./config/db');
 
 const PORT = process.env.PORT || 3000;
 
@@ -16,7 +17,7 @@ hbs.registerPartials(path.join(__dirname, 'views', 'partials'));
 
 // Helper para convertir la primera letra en mayúscula
 hbs.registerHelper('capitalize', function(texto) {
-  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+    return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
 });
 
 //para que capture error previo al arranque
@@ -35,13 +36,21 @@ app.use(express.json());
 app.use('/', mainRouter);
 
 async function iniciarServidor() {
-  try {
-    app.listen(PORT, () => {
-      console.log(`Servidor iniciado en puerto ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Error al iniciar el servidor:', error.message);
-  }
-};
+    try {
+        // Comentar las siguientes dos lineas si se desea probar las rutas con client y no con sequelize
+        await sequelize.authenticate();
+        console.log('Conexión a la base de datos con sequelize establecida con éxito.');
+
+        // Comentar las siguientes dos lineas si se desea probar las rutas con client y no con sequelize
+        await sequelize.sync({ alter: true });  // No usar { force: true } excepto en desarrollo porque borra los datos
+        console.log('Modelos sincronizados correctamente con PostgreSQL.');
+
+        app.listen(PORT, () => {
+        console.log(`Servidor iniciado en puerto ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error.message);
+    }
+    };
 
 iniciarServidor();
