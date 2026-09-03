@@ -104,6 +104,14 @@ Respecto a la validación de datos se aplicó lo siguiente:
 - **nombre:** Se valida que no esté vacío, se limpian espacios al inicio/final con `.trim()` y se exige un mínimo de 3 caracteres.
 - **email:** Se valida que no esté vacío, se limpian espacios al inicio/final y se verifica el formato estándar mediante expresiones regulares (regex).
 
+### Comparación de resultados entre SQL manual y ORM.
+
+- **Reducción de código y expresividad:** Permite trabajar de forma homogénea en JavaScript sin necesidad de escribir cadenas de texto SQL manualmente. Operaciones complejas de lectura como `'SELECT id, nombre, email, fecha_registro, activo FROM usuarios WHERE id = $1';` se abstraen de forma limpia a métodos nativos del ORM como `Usuario.findByPk(id)`.
+
+- **Seguridad integrada:** Al utilizar los métodos del ORM, las consultas se sanitizan automáticamente, reduciendo drásticamente el riesgo de vulnerabilidades por SQL Injection sin tener que preocuparse por la parametrización manual constante.
+
+- **Agilidad en el modelado de datos:** Facilita la creación, modificación y mantenimiento del esquema de la base de datos. Durante la etapa de desarrollo (donde no hay datos sensibles), opciones como { force: true } o { alter: true } permiten sincronizar cambios en los modelos de forma inmediata sin tener que ejecutar scripts de migración manuales en PostgreSQL.
+
 
 ### Referencias y Documentación
 * **Documentación Oficial Node Postgres (`pg.Client`):** https://node-postgres.com/apis/client
