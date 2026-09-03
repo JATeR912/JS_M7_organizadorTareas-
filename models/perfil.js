@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db');
 const {DataTypes} = require('sequelize');
 
 const Perfil = sequelize.define('Perfil', {
@@ -14,9 +14,9 @@ const Perfil = sequelize.define('Perfil', {
     sobre_mi: {
         type: DataTypes.STRING(255),
         allowNull: true,
-    },
+    }
 },
-    {
+{
         tableName: 'perfiles',
         timestamps: false
     }

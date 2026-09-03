@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db');
 const { DataTypes } = require('sequelize');
 
 const Usuario = sequelize.define('Usuario', {
@@ -7,8 +7,10 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.STRING(100),
         allowNull: false,
         validate: {
-            min: 3,
+            len: {
+            args: [3, 100],
             msg: 'El nombre debe tener al menos 3 caracteres'
+            }
         }
     },
     email: { 
@@ -16,8 +18,9 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: false,
         unique: true,
         validate: {
-            isEmail: true,
-            msg: 'El email debe tener un formato válido'
+            isEmail:{
+                msg: 'El email debe tener un formato válido' // DENTRO del objeto de isEmail (en vez de true)
+            }
         }
     },
     password: {
@@ -35,7 +38,7 @@ const Usuario = sequelize.define('Usuario', {
         defaultValue: true,
     }
 },
-    {
+{
         tableName: 'usuarios',
         timestamps: false
     }

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db');
 const { DataTypes } = require('sequelize');
 
 const LogAvance = sequelize.define('LogAvance', {
@@ -16,11 +16,13 @@ const LogAvance = sequelize.define('LogAvance', {
     tiempo_dedicado: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: 0
     }
-}, {
-    tableName: 'logs_avance',
+},
+{
+    tableName: 'log_avance',
     timestamps: false
-});
+}
+);
 
 module.exports = { LogAvance };

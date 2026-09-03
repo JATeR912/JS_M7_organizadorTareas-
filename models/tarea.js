@@ -1,5 +1,5 @@
 require('dotenv').config();
-const sequelize = require('../config/db');
+const { sequelize } = require('../config/db');
 const { DataTypes } = require('sequelize');
 
 const Tarea = sequelize.define('Tarea', {
@@ -17,7 +17,8 @@ const Tarea = sequelize.define('Tarea', {
         allowNull: false,
         defaultValue: false,
     }
-}, {
+},
+{
     tableName: 'tareas',
     timestamps: false
 });
