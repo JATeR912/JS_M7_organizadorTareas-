@@ -15,7 +15,7 @@ const {
     getNotFound 
 //} = require('../controllers/indexController');  Quitar comentario para prubas con client y verificar rutas
 } = require('../controllers/controllerUsuarioSequelize');  //Comentar para prubas con client y verificar rutas
-
+const { getProyectosUsuarioById } = require('../controllers/controllerProyectoSequelize');  //No funcional para pruebas con client
 
 // Rutas
 router.get('/', getHome);
@@ -28,6 +28,9 @@ router.get('/usuarios', getUsuarios);
 router.get('/usuarios/:id', validarId, getUsuarioById);
 router.put('/usuarios/:id', validarId, validarActualizarUsuario, updateUsuarioById);
 router.delete('/usuarios/:id', validarId, deleteUsuarioById);
+
+// Rutas para proyectos
+router.get('/usuarios/:id/proyectos', validarId, getProyectosUsuarioById); ///No ejecutar para pruebas con client
 
 // Rutas para transacciones
 router.post('/usuarios/:id/avance', validarId, registroAvanceTransaccion);
