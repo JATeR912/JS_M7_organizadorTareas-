@@ -13,7 +13,8 @@ const {
     updateUsuarioById, 
     deleteUsuarioById, 
     getNotFound 
-} = require('../controllers/indexController');
+//} = require('../controllers/indexController');  Quitar comentario para prubas con client y verificar rutas
+} = require('../controllers/controllerUsuarioSequelize');  //Comentar para prubas con client y verificar rutas
 
 
 // Rutas
