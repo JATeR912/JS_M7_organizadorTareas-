@@ -104,6 +104,9 @@ Respecto a la validación de datos se aplicó lo siguiente:
 - **nombre:** Se valida que no esté vacío, se limpian espacios al inicio/final con `.trim()` y se exige un mínimo de 3 caracteres.
 - **email:** Se valida que no esté vacío, se limpian espacios al inicio/final y se verifica el formato estándar mediante expresiones regulares (regex).
 
+### Manejo de errores y auditoría mediante logs
+Para garantizar la trazabilidad del sistema, se implementa un mecanismo centralizado de auditoría y monitoreo. A través de loggerMiddleware, se registran automáticamente todas las peticiones entrantes en consola y archivo. De forma complementaria, la función registrarErrorLog captura y almacena de manera estructurada las excepciones no controladas y los fallos de la base de datos en logs/log.txt, permitiendo un diagnóstico rápido sin exponer detalles internos al cliente en la respuesta HTTP.
+
 ### Comparación de resultados entre SQL manual y ORM.
 
 - **Reducción de código y expresividad:** Permite trabajar de forma homogénea en JavaScript sin necesidad de escribir cadenas de texto SQL manualmente. Operaciones complejas de lectura como `'SELECT id, nombre, email, fecha_registro, activo FROM usuarios WHERE id = $1';` se abstraen de forma limpia a métodos nativos del ORM como `Usuario.findByPk(id)`.
@@ -112,6 +115,9 @@ Respecto a la validación de datos se aplicó lo siguiente:
 
 - **Agilidad en el modelado de datos:** Facilita la creación, modificación y mantenimiento del esquema de la base de datos. Durante la etapa de desarrollo (donde no hay datos sensibles), opciones como { force: true } o { alter: true } permiten sincronizar cambios en los modelos de forma inmediata sin tener que ejecutar scripts de migración manuales en PostgreSQL.
 
+- **Validaciones centralizadas en la capa de datos:** Permite definir reglas de negocio e integridad diretamente en la declaración del modelo (por ejemplo, restricciones de unicidad, expresiones regulares o tipos de datos). Esto garantiza que cualquier registro invalido sea rechazado antes de ser persistido en la base de datos.
+
+- **Manejo de respuestas y proyección de atributos:** En SQL nativo, la recuperación de registros recién insertados o actualizados requiere el uso explícito de la cláusula `RETURNING *`, además de listar manualmente cada columna en las sentencias `SELECT` si se desea limitar la respuesta. El ORM automatiza el retorno de las instancias persistidas y facilita la selección o exclusión explícita de campos mediante la propiedad attributes, simplificando la sanitización de datos sensibles como contraseñas o estados internos.
 
 ### Referencias y Documentación
 * **Documentación Oficial Node Postgres (`pg.Client`):** https://node-postgres.com/apis/client
