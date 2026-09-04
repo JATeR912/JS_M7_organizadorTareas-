@@ -88,10 +88,15 @@ npm install
 3. Herramienta de desarrollo (Nodemon):
 **(Opcional: nodemon está guardado en devDependencies, se instalará automáticamente con npm install).**
 
-El script de desarrollo utiliza nodemon. Si no lo tienes instalado globalmente en tu equipo, puedes instalarlo ejecutando:
+El script de desarrollo utiliza nodemon. Si deseas instalarlo globalmente en tu equipo, puedes hacerlo ejecutando:
 ```bash
 npm install -g nodemon
 ```
+
+> **Nota de instalación y configuración:** 
+> * **Base de Datos Inicial:** Para poblar PostgreSQL con datos iniciales vía SQL nativo, se puede ejecutar el script config/schema.sql.
+> * **Sincronización con Sequelize:** Si se requiere que Sequelize genere o actualice las tablas de forma automática desde los modelos, asegurarse de activar la línea await sequelize.sync({ alter: true }) en index.js.
+> * **Alternancia de Persistencia (Client / Sequelize):** El código cuenta con bloques comentados en index.js y routes/router.js que permiten alternar fácilmente la ejecución entre consultas con cliente SQL nativo (pg) y el ORM Sequelize para pruebas de rendimiento o verificación.
 
 ## Ejecución y Scripts
 
@@ -109,16 +114,26 @@ npm start
 ```bash
 node index.js
 ```
+
 ### Configuración del Puerto (.env)
 
-El servidor admite la configuración de variables de entorno mediante un archivo .env. Si no se define la variable PORT, el sistema tomará por defecto el puerto 3000.
+El servidor admite la configuración de variables de entorno mediante un archivo .env(se recomienda usar ambas versiones en paralelo). Si no se define la variable PORT, el sistema tomará por defecto el puerto 3000.
 
 Crea un archivo .env en la raíz del proyecto (puedes guiarte con .env.example):
+
 ```env
 PORT=3000
+
+DATABASE_URL=postgresql://usuarioDB:contraseñaDB@localhost:5432/nombreDB
+
+DB_NAME=nombreDB
+DB_USER=usuarioDB
+DB_PASSWORD=contraseñaDB
+DB_HOST=localhost
+DB_PORT=5432
 ```
 Una vez ejecutado el comando de inicio, accede desde tu navegador a:
-http://localhost:3000/ (o utilizando el puerto configurado en tu archivo .env).
+http://localhost:3000/ (o utilizando el puerto configurado en tu archivo .env: http://localhost:PORT/).
 
 ## Endpoints y Rutas del Sistema
 
