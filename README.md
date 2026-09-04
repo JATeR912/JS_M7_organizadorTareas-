@@ -169,6 +169,13 @@ El endpoint /status retorna una respuesta en formato JSON con la siguiente estru
 **/usuarios/:id/perfil**
 El endpoint /usuarios/:id/perfil retorna repuesta en formato JSON con el perfil asociado a un usuario, limitando los datos de usuario, para evitar el envío de contraseñas.
 
+<img width="1491" height="872" alt="sequelize_get_usuarios_perfil_ok_true" src="https://github.com/user-attachments/assets/6641a823-3e83-4a54-8b22-9932b95083da" />
+
+**/usuarios/:id/proyectos**
+El endpoint /usuarios/:id/proyectos retorna repuesta en formato JSON con los proyectos asociados a un usuario, limitando los datos de usuario, para evitar el envío de contraseñas.
+
+<img width="1548" height="886" alt="sequelize_get_usuarios_proyectos_ok_true" src="https://github.com/user-attachments/assets/4c3d46a9-a17a-43e4-a6bd-16c8e5589cd2" />
+
 ### Uso de Inteligencia Artificial (IA)
 
 El proyecto presenta uso de IA principalmente, para corrección y redaccion de textos, validaciones (regex) y organización de paso a paso durante el proceso de trabajo.
