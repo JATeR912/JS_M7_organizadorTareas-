@@ -22,6 +22,7 @@ El sistema está construido bajo una arquitectura modular, separando responsabil
 /
 ├── config/
 │   └── db.js                           # Configuración de conexiones PostgreSQL y Sequelize
+│   └── queries.sql                     # Script de consultas SQL nativas
 ├── controllers/
 │   ├── indexController.js              # Controlador nativo con pg.Client
 │   ├── controllerUsuarioSequelize.js   # Controlador usuarios con ORM Sequelize
