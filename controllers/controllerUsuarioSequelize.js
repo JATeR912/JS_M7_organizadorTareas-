@@ -102,9 +102,10 @@ async function updateUsuarioById(req, res){
     
     try {
         const campos = {};
-        if (nombre !== undefined) 
+        if (nombre !== undefined && nombre !== null && nombre.trim() !== '') {
             campos.nombre = nombre;
-        if (email !== undefined) {
+        }
+        if (email !== undefined && email !== null && email.trim() !== '') {
             campos.email = email;
         }
         const usuario = await Usuario.update(campos, { where: { id } });
