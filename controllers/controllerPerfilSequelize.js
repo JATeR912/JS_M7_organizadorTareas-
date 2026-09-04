@@ -93,7 +93,7 @@ async function updatePerfilByUsuarioId(req, res){
         if (perfil[0] === 0) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'No se encontró el usuario asociado alperfil'
+                mensaje: 'No se encontró el usuario asociado al perfil'
             });
         }
         const perfilActualizado = await Perfil.findOne({ where: { usuario_id: id } });
