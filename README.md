@@ -4,47 +4,64 @@ Proyecto desarrollado para los Módulos 6, 7 y 8 del programa Talento Digital 20
 
 ## Descripción del Proyecto
 
-El presente proyecto corresponde al desarrollo progresivo de una aplicación web para la gestión y organización de tareas. Está proyectado para incluir operaciones CRUD, persistencia de datos con bases de datos, gestión de usuarios y autenticación en entregas posteriores.
+El presente proyecto corresponde al desarrollo progresivo de una aplicación web para la gestión y organización de tareas mediante operaciones CRUD y persistencia de datos mediante PostgreSQL y Sequelize ORM. Actualmente contempla la gestión relacional de usuarios, perfiles, proyectos y tareas, proyectando incorporar autenticación con JWT, subida de archivos y estandarización de API RESTful en entregas posteriores.
 
 
 ## Arquitectura Utilizada
 
-El sistema está construido bajo una arquitectura modular, separando responsabilidades mediante controladores, enrutadores y middlewares.
+El sistema está construido bajo una arquitectura modular, separando responsabilidades mediante modelos, controladores, enrutadores y middlewares.
 
-* Backend: Node.js, Express.
-* Motor de Plantillas: Handlebars (hbs) con uso de layouts y partials dinámicos.
-* Frontend: HTML5, CSS3, Bootstrap 5.3.
-* Herramientas de desarrollo: Git, GitHub, Visual Studio Code.
-
+* **Backend:** Node.js, Express.js.
+* **Base de Datos & ORM:** PostgreSQL, Sequelize ORM, Driver nativo `pg` (node-postgres) y `pg-hstore`.
+* **Motor de Plantillas:** Handlebars (`hbs`) con uso de layouts y partials dinámicos.
+* **Frontend:** HTML5, CSS3, Bootstrap 5.3.
+* **Herramientas de Desarrollo:** Git, GitHub, Visual Studio Code, Thunder Client, Dotenv.
 
 ## Estructura del Proyecto
 ```bash
 /
+├── config/
+│   └── db.js                           # Configuración de conexiones PostgreSQL y Sequelize
 ├── controllers/
-│   └── indexController.js   # Manejo de controladores de las rutas
+│   ├── indexController.js              # Controlador nativo con pg.Client
+│   ├── controllerUsuarioSequelize.js   # Controlador usuarios con ORM Sequelize
+│   ├── controllerPerfilSequelize.js    # Controlador perfiles con ORM Sequelize
+│   ├── controllerProyectoSequelize.js  # Controlador proyectos con ORM Sequelize
+│   └── transaccionController.js        # Controlador transaccion con pg.Client
+├── doc/
+│   └── justificacionProyecto.md        # Justificación técnica y teórica completa (M6 y M7)
 ├── logs/
-│   └── log.txt              # Registro de logs del servidor
+│   └── log.txt                         # Registro de auditoría y errores del servidor
 ├── middleware/
-│   └── logger.js            # Middleware para registrar logs
+│   ├── logger.js                       # Registrar logs en archivo y consola
+│   ├── validarId.js                    # Validación de parámetros ID de ruta
+│   └── validarUsuario.js               # Validaciones de entrada para creación/edición
+├── models/
+│   ├── usuario.js                      # Modelo Sequelize de Usuario
+│   ├── perfil.js                       # Modelo Sequelize de Perfil
+│   ├── proyecto.js                     # Modelo Sequelize de Proyecto
+│   ├── tarea.js                        # Modelo Sequelize de Tarea
+│   ├── logAvance.js                    # Modelo Sequelize de LogAvance (Tabla intermedia)
+│   └── modelsIndex.js                  # Centralizador y definición de relaciones ORM
 ├── public/
 │   └── css/
-│       └── style.css        # Estilos CSS de la aplicación
+│       └── style.css                   # Estilos CSS de la aplicación
 ├── routes/
-│   └── router.js            # Definición de las rutas del sistema
+│   └── router.js                       # Definición de las rutas del sistema
 ├── views/
-│   ├── partials/            # Componentes reutilizables de Handlebars
+│   ├── partials/                       # Componentes reutilizables de Handlebars
 │   │   ├── footer.hbs
 │   │   └── nav.hbs
-│   ├── 404.hbs              # Vista para error de ruta no encontrada
-│   ├── home.hbs             # Vista de la página de inicio
-│   └── tareas.hbs           # Vista del listado de tareas
-├── .env                     # Variables de entorno (puerto, configuraciones)
-├── .env.example             # Plantilla de ejemplo para variables de entorno
-├── .gitignore               # Archivos omitidos por Git (como node_modules)
-├── index.js                 # Punto de entrada principal del servidor Express
-├── package-lock.json        # Árbol de dependencias exactas
-├── package.json             # Configuración del proyecto, dependencias y scripts
-└── README.md                # Documentación principal del proyecto
+│   ├── 404.hbs                         # Vista para error de ruta no encontrada
+│   ├── home.hbs                        # Vista de la página de inicio
+│   └── tareas.hbs                      # Vista del listado de tareas
+├── .env                                # Variables de entorno (puerto, configuraciones)
+├── .env.example                        # Plantilla de ejemplo para variables de entorno
+├── .gitignore                          # Archivos omitidos por Git (como node_modules)
+├── index.js                            # Punto de entrada principal del servidor Express
+├── package-lock.json                   # Árbol de dependencias exactas
+├── package.json                        # Configuración del proyecto, dependencias y scripts
+└── README.md                           # Documentación principal del proyecto  
 ```
 ## Requisitos e Instalación
 
@@ -102,22 +119,58 @@ PORT=3000
 Una vez ejecutado el comando de inicio, accede desde tu navegador a:
 http://localhost:3000/ (o utilizando el puerto configurado en tu archivo .env).
 
-## Endpoints y Rutas Disponibles
+## Endpoints y Rutas del Sistema
 
-| Método | Ruta | Descripción |
-| :--- | :--- | :--- |
-| GET | / | Vista de inicio con mensaje de bienvenida renderizado dinámicamente con Handlebars. |
-| GET | /tareas | Vista principal del listado de tareas procesadas dinámicamente. |
-| GET | /status | Endpoint API que retorna el estado del servidor en formato JSON. |
-| ALL | * | Captura de rutas no encontradas (Manejo de error HTTP 404). |
+### 1. Vistas y Estado del Servidor
+| Método | Ruta | Descripción | Middleware / Control |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/` | Vista de inicio con mensaje dinámico. | `getHome` |
+| **GET** | `/Tareas` | Vista principal del listado de tareas. | `getTareas` |
+| **GET** | `/status` | Retorna el estado del servidor y tiempo de actividad. | `getStatus` (JSON) |
+
+### 2. Gestión de Usuarios (CRUD)
+| Método | Ruta | Descripción | Middleware / Control |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/usuarios` | Obtiene el listado completo de usuarios. | `getUsuarios` |
+| **GET** | `/usuarios/:id` | Obtiene la información de un usuario específico. | `validarId`, `getUsuarioById` |
+| **POST** | `/usuarios` | Registra un nuevo usuario en la base de datos. | `validarCrearUsuario`, `postUsuario` |
+| **PUT** | `/usuarios/:id` | Actualiza campos permitidos (`nombre`, `email`) de un usuario. | `validarId`, `validarActualizarUsuario`, `updateUsuarioById` |
+| **DELETE** | `/usuarios/:id` | Elimina un usuario existente por su ID. | `validarId`, `deleteUsuarioById` |
+
+### 3. Gestión de Perfiles (CRUD Relacional 1:1)
+| Método | Ruta | Descripción | Middleware / Control |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/usuarios/:id/perfil` | Consulta el perfil asociado a un usuario. | `validarId`, `getPerfilUsuarioById` |
+| **POST** | `/usuarios/:id/perfil` | Crea un nuevo perfil vinculado a un usuario. | `validarId`, `postPerfil` |
+| **PUT** | `/usuarios/:id/perfil` | Actualiza campos del perfil (`avatar_url`, `telefono`, `sobre_mi`). | `validarId`, `updatePerfilByUsuarioId` |
+| **DELETE** | `/usuarios/:id/perfil` | Elimina el perfil de un usuario. | `validarId`, `deletePerfilByUsuarioId` |
+
+### 4. Consultas Relacionales y Transacciones
+| Método | Ruta | Descripción | Middleware / Control |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/usuarios/:id/proyectos` | Consulta proyectos vinculados al usuario (Relación 1:N). | `validarId`, `getProyectosUsuarioById` |
+| **POST** | `/usuarios/:id/avance` | Registra avance de tarea con transacción (`BEGIN`, `COMMIT`, `ROLLBACK`). | `validarId`, `registroAvanceTransaccion` |
+
+### 5. Control de Errores
+| Método | Ruta | Descripción | Respuesta |
+| :--- | :--- | :--- | :--- |
+| **ALL** | `*` | Captura de cualquier ruta no definida. | `getNotFound` (Vista 404 / JSON) |
 
 <img width="1918" height="966" alt="image" src="https://github.com/user-attachments/assets/3b848dc2-1587-425d-a8f7-b57a2b9ee931" />
 
 
-### Respuesta del Endpoint /status
+### Respuesta del Endpoint 
+**/status**
 El endpoint /status retorna una respuesta en formato JSON con la siguiente estructura:
 
 <img width="616" height="322" alt="image" src="https://github.com/user-attachments/assets/3fa586e5-e377-45a7-b109-17fa0168e8c1" />
+
+**/usuarios/:id/perfil**
+El endpoint /usuarios/:id/perfil retorna repuesta en formato JSON con el perfil asociado a un usuario, limitando los datos de usuario, para evitar el envío de contraseñas.
+
+### Uso de Inteligencia Artificial (IA)
+
+El proyecto presenta uso de IA principalmente, para corrección y redaccion de textos, validaciones (regex) y organización de paso a paso durante el proceso de trabajo.
 
 **Para consultar la teoría detallada y justificaciones técnicas del módulo, revisa el archivo [doc/justificacionProyecto.md](./doc/justificacionProyecto.md).**
 
